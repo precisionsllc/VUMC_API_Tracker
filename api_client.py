@@ -32,6 +32,15 @@ def view_event(event_id):
         print(f"Error while viewing event: {e}")
         return None
 
+def delete_event(event_id):
+    try:
+        response = requests.delete(f'{base_url}/events/{event_id}')
+        response.raise_for_status()  # Check for any HTTP errors
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error while deleting event: {e}")
+        return None
+
 def search_events(query):
     try:
         response = requests.get(f'{base_url}/events/search?q={query}')
@@ -59,6 +68,13 @@ if __name__ == '__main__':
         if event:
             print(event)
 
+        # Delete the newly created event
+        if event_id:
+            delete_result = delete_event(event_id)
+            if delete_result:
+                print("Event Deleted:")
+                print(delete_result)
+
         search_query = "New Event"
         print(f"Searching Events with '{search_query}' in title or description:")
         search_result = search_events(search_query)
@@ -70,3 +86,4 @@ if __name__ == '__main__':
         updated_events = list_events()
         if updated_events:
             print(updated_events)
+
