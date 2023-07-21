@@ -1,4 +1,3 @@
-# VUMC_API_Tracker
 
 # VUMC Event Tracking API
 
