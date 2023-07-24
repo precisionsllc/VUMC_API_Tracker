@@ -61,29 +61,30 @@ def create_event():
         print(f"Error while creating event: {e}")
         return jsonify({'error': 'Database error'}), 500
 
-@app.route('/events/<int:event_id>', methods=['GET'])
-def view_event(event_id):
+@app.route('/events/<int:event_id>', methods=['GET', 'PUT', 'DELETE'])
+def event_detail(event_id):
     try:
         event = Event.query.get(event_id)
-        if event:
-            return jsonify(event.to_dict())
-        return jsonify({'message': 'Event not found'}), 404
-    except Exception as e:
-        print(f"Error while viewing event: {e}")
-        return jsonify({'error': 'Database error'}), 500
+        if event is None:
+            return jsonify({'message': 'Event not found'}), 404
 
-@app.route('/events/<int:event_id>', methods=['DELETE'])
-def delete_event(event_id):
-    try:
-        event = Event.query.get(event_id)
-        if event:
+        if request.method == 'GET':
+            return jsonify(event.to_dict())
+        elif request.method == 'PUT':
+            data = request.get_json()
+            if 'title' in data:
+                event.title = data['title']
+            if 'description' in data:
+                event.description = data['description']
+            db.session.commit()
+            return jsonify({'message': 'Event updated successfully', 'event': event.to_dict()})
+        elif request.method == 'DELETE':
             db.session.delete(event)
             db.session.commit()
             return jsonify({'message': 'Event deleted successfully'})
-        return jsonify({'message': 'Event not found'}), 404
+
     except Exception as e:
-        db.session.rollback()
-        print(f"Error while deleting event: {e}")
+        print(f"Error while handling event request: {e}")
         return jsonify({'error': 'Database error'}), 500
 
 @app.route('/events/search', methods=['GET'])
