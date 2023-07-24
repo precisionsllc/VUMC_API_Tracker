@@ -41,6 +41,21 @@ def delete_event(event_id):
         print(f"Error while deleting event: {e}")
         return None
 
+def update_event(event_id, title=None, description=None):
+    try:
+        data = {}
+        if title is not None:
+            data['title'] = title
+        if description is not None:
+            data['description'] = description
+
+        response = requests.put(f'{base_url}/events/{event_id}', json=data)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error while updating event: {e}")
+        return None
+
 def search_events(query):
     try:
         response = requests.get(f'{base_url}/events/search?q={query}')
@@ -68,6 +83,13 @@ if __name__ == '__main__':
         if event:
             print(event)
 
+        # Update the newly created event
+        if event_id:
+            updated_event = update_event(event_id, title="Updated Event Title", description="Updated Event Description")
+            if updated_event:
+                print("Event Updated:")
+                print(updated_event)
+
         # Delete the newly created event
         if event_id:
             delete_result = delete_event(event_id)
@@ -86,4 +108,3 @@ if __name__ == '__main__':
         updated_events = list_events()
         if updated_events:
             print(updated_events)
-
